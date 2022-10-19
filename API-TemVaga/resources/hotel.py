@@ -8,10 +8,10 @@ class Hoteis(Resource):
 class Hotel(Resource):
 
     atributos = reqparse.RequestParser()
-    atributos.add_argument('nome')
-    atributos.add_argument('estrelas')
-    atributos.add_argument('diaria')
-    atributos.add_argument('cidade')
+    atributos.add_argument('nome', type=str, required=True, help="The field 'nome' cannot be left blank.")
+    atributos.add_argument('estrelas', type=float, required=True, help="The field 'estrelas' cannot be left blank.")
+    atributos.add_argument('diaria', type=float)
+    atributos.add_argument('cidade', type=str)
 
     def get(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
@@ -25,7 +25,10 @@ class Hotel(Resource):
 
         data = Hotel.atributos.parse_args()
         hotel = HotelModel(hotel_id, **data)
-        hotel.save_hotel()
+        try:
+            hotel.save_hotel()
+        except:
+            return {"message": "An internal error ocurred trying to save hotel."}, 500
         return hotel.json(), 200
 
 
@@ -35,16 +38,25 @@ class Hotel(Resource):
         hotel_found = HotelModel.find_hotel(hotel_id)
         if hotel_found:
             hotel_found.update_hotel(**data)
-            hotel_found.save_hotel()
+            try:
+                hotel_found.save_hotel()
+            except:
+                return {"message": "An internal error ocurred trying to save hotel."}, 500
             return hotel_found.json(), 200
 
         new_hotel = HotelModel(hotel_id, **data)
-        new_hotel.save_hotel()
+        try:
+            new_hotel.save_hotel()
+        except:
+            return {"message": "An internal error ocurred trying to save hotel."}, 500
         return new_hotel.json(), 201
 
     def delete(self, hotel_id):
         hotel_found = HotelModel.find_hotel(hotel_id)
         if hotel_found:
-            hotel_found.delete_hotel()
+            try:
+                hotel_found.delete_hotel()
+            except:
+                return {"message": "An internal error ocurred trying to delete hotel."}, 500
             return {"message": "Hotel deleted."}
         return {"message": "Hotel not found."}, 404
