@@ -3,7 +3,7 @@ from models.hotel import HotelModel
 
 class Hoteis(Resource):
     def get(self):
-        return {'hoteis': hoteis}
+        return {"hoteis": [hotel.json() for hotel in HotelModel.query.all()]}
 
 class Hotel(Resource):
 
@@ -46,5 +46,5 @@ class Hotel(Resource):
         hotel_found = HotelModel.find_hotel(hotel_id)
         if hotel_found:
             hotel_found.delete_hotel()
-            return {'message': 'Hotel deleted.'}
+            return {"message": "Hotel deleted."}
         return {"message": "Hotel not found."}, 404
