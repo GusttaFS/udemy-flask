@@ -23,22 +23,24 @@ class Hotel(Resource):
         if HotelModel.find_hotel(hotel_id):
             return {"message": "Hotel id '{}' already exists.".format(hotel_id)}, 400
 
-        dados = Hotel.atributos.parse_args()
-        hotel = HotelModel(hotel_id, **dados)
+        data = Hotel.atributos.parse_args()
+        hotel = HotelModel(hotel_id, **data)
         hotel.save_hotel()
         return hotel.json(), 200
 
 
     def put(self, hotel_id):
-        dados = Hotel.atributos.parse_args()
-        hotel_objeto = HotelModel(hotel_id, **dados)
-        novo_hotel = hotel_objeto.json()
-        hotel = Hotel.find_hotel(hotel_id)
-        if hotel:
-            hotel.update(novo_hotel)
-            return hotel, 200
-        hoteis.append(novo_hotel)
-        return novo_hotel, 201
+        data = Hotel.atributos.parse_args()
+
+        hotel_found = HotelModel.find_hotel(hotel_id)
+        if hotel_found:
+            hotel_found.update_hotel(**data)
+            hotel_found.save_hotel()
+            return hotel_found.json(), 200
+
+        new_hotel = HotelModel(hotel_id, **data)
+        new_hotel.save_hotel()
+        return new_hotel.json(), 201
 
     def delete(self, hotel_id):
         global hoteis
